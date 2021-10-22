@@ -8,17 +8,8 @@ jobs:
   test-stack:
     name: test stack
     runs-on: ubuntu-latest
-#     env:
-      # Supply targeret AWS account here
-#      DEPLOY_TARGET_ACCOUNT: "198933379036"
-#      DEPLOY_ACTION_VERSION: v2.1.0
-#      TEAM_SECRET: ${{ secrets.G01468_LPE_GITHUB_HELPER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Install
-        run: npm ci
-
      - name: Run a one-line script
         run: echo Hello, world!
