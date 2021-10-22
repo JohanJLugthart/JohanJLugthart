@@ -1,0 +1,48 @@
+name: deploy test cdk from johan
+on:
+  pull_request:
+    types: [closed]
+    branches: [ johan ]
+
+jobs:
+  deploy-dev:
+    if: github.event.pull_request.merged == true
+    name: CDK deployment to dev
+    runs-on: ubuntu-latest
+    env:
+      # Supply target AWS account here
+      DEPLOY_TARGET_ACCOUNT: "198933379036"
+      DEPLOY_ACTION_VERSION: v2.1.0
+      TEAM_SECRET: ${{ secrets.G01468_LPE_GITHUB_HELPER }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install
+        run: npm ci
+
+      - name: Build & Test
+        run: |
+          npm run build
+          npm run test
+          
+      - name: Checkout lpe-private-actions
+        uses: actions/checkout@v2
+        with:
+          repository: Postnl-Production/lpe-private-actions
+          path: .github/actions
+          ref: ${{ env.DEPLOY_ACTION_VERSION }}
+          ssh-key: ${{ secrets.LPE_ACTIONS_DEPLOY_PRIVATEKEY }}
+          persist-credentials: false
+
+      # START: DEPLOYMENT TO DEV STAGE
+      - name: Get temporary AWS Credentials
+        uses: ./.github/actions/lpe-deploy-action
+        with:
+          target-account: ${{ env.DEPLOY_TARGET_ACCOUNT }}
+          deploy-secret: ${{ env.TEAM_SECRET }}
+
+      - name: CDK synthesize & deploy cdk-sample app
+        run: |
+          npx cdk synth
+          npx cdk deploy
