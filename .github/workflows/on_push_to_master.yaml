@@ -26,10 +26,11 @@ jobs:
         run: |
           echo this are the files in the environment
           ls
-          mkdir -p ~/testfolder/test_subfolder
+          mkdir -p testfolder/test_subfolder
           ls
           ls ~
+          rm -r testfolder
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: Merge is done
+        run: echo Merge is done
 
